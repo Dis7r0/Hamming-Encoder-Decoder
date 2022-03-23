@@ -1,0 +1,135 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 02.11.2018 14:07:58
+// Design Name: 
+// Module Name: hamm_tb
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module hamm_tb();
+reg m3,m5,m6,m7,m9,m10,m11,m12;
+reg mr3,mr5,mr6,mr7,mr9,mr10,mr11,mr12;
+wire mv3,mv5,mv6,mv7,mv9,mv10,mv11,mv12;
+reg ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12;
+wire e1,e2,e4,e8;
+reg p1,p2,p4,p8;
+initial
+$display("bit_order=m3, m5, m6, m7, m9, m10, m11, m12");
+initial 
+$monitor("sent=%b, rcvd=%b, error=%b, valid=%b",
+        {ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12},
+        {mr3,mr5,mr6,mr7,mr9,mr10,mr11,mr12},
+        {e8,e4,e2,e1},
+        {mv3,mv5,mv6,mv7,mv9,mv10,mv11,mv12});
+initial
+begin
+#0 {ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12}=8'b1010_1010;        
+    {m3,m5,m6,m7,m9,m10,m11,m12}={ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12};
+pbit_generate(m3,m5,m6,m7,m9,m10,m11,m12);
+     
+     {mr3,mr5,mr6,mr7,mr9,mr10,mr11,mr12}={m3,m5,m6,m7,m9,m10,m11,m12};
+
+//-------------------------------------------------------------------------------------------
+#10 {ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12}=8'b1010_1010;        
+    {m3,m5,m6,m7,m9,m10,m11,m12}={ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12};
+pbit_generate(m3,m5,m6,m7,m9,m10,m11,m12);
+     {mr3,mr5,mr6,mr7,mr9,mr10,mr11,mr12}={m3,m5,m6,m7,m9,m10,m11,m12};        
+
+error_inject(11);
+        {mr3,mr5,mr6,mr7,mr9,mr10,mr11,mr12}={m3,m5,m6,m7,m9,m10,m11,m12};
+        
+//-------------------------------------------------------------------------------------------
+#10 {ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12}=8'b1010_1010;        
+            {m3,m5,m6,m7,m9,m10,m11,m12}={ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12};
+        pbit_generate(m3,m5,m6,m7,m9,m10,m11,m12);
+        
+ error_inject(8);
+        {mr3,mr5,mr6,mr7,mr9,mr10,mr11,mr12}={m3,m5,m6,m7,m9,m10,m11,m12};        
+
+//-------------------------------------------------------------------------------------------
+
+#10 {ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12}=8'b1111_0000;        
+            {m3,m5,m6,m7,m9,m10,m11,m12}={ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12};
+        pbit_generate(m3,m5,m6,m7,m9,m10,m11,m12);
+             {mr3,mr5,mr6,mr7,mr9,mr10,mr11,mr12}={m3,m5,m6,m7,m9,m10,m11,m12};        
+        
+        error_inject(7);
+                {mr3,mr5,mr6,mr7,mr9,mr10,mr11,mr12}={m3,m5,m6,m7,m9,m10,m11,m12};
+                
+//-------------------------------------------------------------------------------------------
+
+#10 {ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12}=8'b0110_1101;        
+    {m3,m5,m6,m7,m9,m10,m11,m12}={ms3,ms5,ms6,ms7,ms9,ms10,ms11,ms12};
+       pbit_generate(m3,m5,m6,m7,m9,m10,m11,m12);
+                
+error_inject(4);
+       {mr3,mr5,mr6,mr7,mr9,mr10,mr11,mr12}={m3,m5,m6,m7,m9,m10,m11,m12};
+
+//-------------------------------------------------------------------------------------------       
+#10 $stop;
+end
+
+task pbit_generate;
+input m3,m5,m6,m7,m9,m10,m11,m12;
+begin
+    p1= ~(m3 ^ m5 ^ m7 ^ m9 ^ m11);
+    p2= ~(m3 ^ m6 ^ m7 ^ m10 ^ m11);
+    p4= ~(m5 ^ m6 ^ m7 ^  m12);
+    p8= ~(m9 ^ m10 ^ m11 ^ m12);
+end
+endtask
+
+task error_inject;
+    input [3:0] bit_number;
+    reg [11:0] bit_position;
+    reg [11:0] data;
+    begin
+        bit_position = 1'b1<<bit_number;
+        
+        data={m3,m5,m6,m7,m9,m10,m11,m12,p1,p2,p4,p8};
+        {m3,m5,m6,m7,m9,m10,m11,m12,p1,p2,p4,p8} = data ^ bit_position;
+end
+endtask
+
+hamm inst1(
+    .m3(m3),
+    .m5(m5),
+    .m6(m6),
+    .m7(m7),
+    .m9(m9),
+    .m10(m10),
+    .m11(m11),
+    .m12(m12),
+    .p1(p1),
+    .p2(p2),
+    .p4(p4),
+    .p8(p8),
+    .mv3(mv3),
+    .mv5(mv5),
+    .mv6(mv6),
+    .mv7(mv7),
+    .mv9(mv9),
+    .mv10(mv10),
+    .mv11(mv11),
+    .mv12(mv12),
+    .e1(e1),
+    .e2(e2),
+    .e8(e8),
+    .e4(e4)        
+);
+endmodule
+

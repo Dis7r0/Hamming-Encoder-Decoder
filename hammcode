@@ -1,0 +1,52 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 02.11.2018 13:43:03
+// Design Name: 
+// Module Name: hamm
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module hamm(m3,m5,m6,m7,m9,m10,m11,m12,p1,p2,p4,p8,mv3,mv5,mv6,mv7,mv9,mv10,mv11,mv12,e1,e2,e4,e8);
+input m3,m5,m6,m7,m9,m10,m11,m12;
+input p1,p2,p4,p8;
+output mv3,mv5,mv6,mv7,mv9,mv10,mv11,mv12;
+output e1,e2,e4,e8;
+wire mr3,mr5,mr6,mr7;
+wire mr9,mr10,mr11,mr12;
+assign e1=~(p1^m3^m5^m7^m9^m11),
+        e2=~(p2^m3^m6^m7^m10^m11),
+        e4=~(p4^m5^m6^m7^m12),
+        e8=~(p8^m9^m10^m11^m12);
+assign  mr3=(~e8)&(~e4)&(e2)&(e1),
+        mr5=(~e8)&(e4)&(~e2)&(e1),
+        mr6=(~e8)&(e4)&(e2)&(~e1),
+        mr7=(~e8)&(e4)&(e2)&(e1),
+        mr9=(e8)&(~e4)&(~e2)&(e1),
+        mr10=(e8)&(~e4)&(e2)&(~e1),
+        mr11=(e8)&(~e4)&(e2)&(e1),
+        mr12=(e8)&(e4)&(~e2)&(~e1);
+assign  mv3=(mr3)^(m3),
+        mv5=(mr5)^(m5),
+        mv6=(mr6)^(m6),
+        mv7=(mr7)^(m7),
+        mv9=(mr9)^(m9),
+        mv10=(mr10)^(m10),
+        mv11=(mr11)^(m11),
+        mv12=(mr12)^(m12);
+        
+endmodule
+
